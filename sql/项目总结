@@ -1,0 +1,55 @@
+简介：
+一个简单的论坛形式的网站，用户登录可以发表帖子，其他用户可以对某一个帖子进行评论，
+评论的用户之间不可以交流。
+
+使用技术：
+SpringBoot做引导
+Spring【提供JPA接口进行CRUD】
+Hibernate【用于映射表结构】
+Freemarker【页面显示及处理，代替JSP】
+特殊：富文本编辑器：KindEditor
+分页处理：使用Spring提供的Page和Pageable类
+
+MVC结构
+Model：Hibernate
+View：Freemarker
+Controller：Servlet
+
+数据库：
+user表：用户信息【userid=-1代表游客，未登陆状态】
+article表：帖子信息【rootid=0:主帖，非零：其主帖的artid】
+
+要点总结：
+1.头像上传：使用了Spring的上传组件  commons-fileupload
+2.ajax:服务器返回给浏览器JSON数据，用了fastjson组件，但是有一个问题，当数据有重叠时，
+会进行压缩处理，导致遍历数据集合时某些key丢失未定义，处理方法是重新封装了一个传数据的类，避免数据
+重叠，其实也可以用一个存储过程解决这个问题。
+3.富文本编辑器图像流文件的上传，使用的是阿帕奇的上传组件 apache.commons.fileupload
+4.Hibernate懒加载异常
+5.分页：使用Spring提供的Page和Pageable类
+6.数据库大字段BLOB数据上传，需要改数据库配置
+综合详述：
+这个项目主要使用了Spring、Hibernate、Freemarker技术。基于MVC模型，其主要的特点就是无论同步还是异步的请求都要先经过控制层，也就是Servlet，
+再由控制层决定转向到视图层还是模型层。视图层使用Freemarker实现【优点】；另外使用了富文本编辑器组件
+kindEdiretor，用于对帖子进行在线编辑，支持上传图片，并且允许Spring对其进行控制反转，；还使用了JQuery框架，主要原因就是原生JS不能
+完全跨浏览器，而JQuery可以跨浏览器，另一个就是为了使用AJAX技术，当回帖时使用AJAX发送异步请求给Servlet，Servlet访问模型层刷新数据
+之后转为JSON格式返回给AJAX，转化为JSON使用的是Alibaba的FastJSON.jar包提供的方法。模型层包含po、dao、service，po层的实体类是通过
+实现JPA规范的Hibernate框架对数据库中表的自动映射得到的，而dao层使用的是Spring提供的JPA接口，对该接口进行实现和扩展来实现项目需求
+的各种CRUD，service主要是对dao层的调用，提供给控制层使用，除此还实现复杂的业务，注册时用户头像上传，
+登录后用户头像显示。数据库的设计，使用的是MySQL数据库【优点】，表中特殊的字段类型就是存储用户头像的
+，用的是blob类型，用于存储大的二进制文件。【问题】
+总体概览：
+使用Maven进行项目管理，便于下载jar包，使用SpringBoot做引导器，便于多个框架的相互配置，Spring、Servlet的配置使用的都是注解；
+项目带有一个字符过滤器，自己写的一个继承HttpFilter的过滤器，在Boot核心类中注入成Bean，使用Spring提供的encoderFilterRegistration
+进行设置，最后放入过滤链中。
+项目配置：
+对Freemarker进行配置，使其转向某一个Freemarker页面
+对Boot进行配置，WebMvcConfig设置默认首页，把静态页加入到资源链中，解决Boot对静态页拦截的问题。
+要点总结：
+1.头像上传：使用了Spring的上传组件  commons-fileupload
+2.ajax:服务器返回给浏览器JSON数据，用了fastjson组件，但是有一个问题，当数据有重叠时，
+会进行压缩处理，导致遍历数据集合时某些key丢失未定义，处理方法是重新封装了一个传数据的类，避免数据
+重叠，其实也可以用一个存储过程解决这个问题。
+3.富文本编辑器图像流文件的上传，使用的是阿帕奇的上传组件 apache.commons.fileupload
+4.Hibernate懒加载异常
+5.分页：使用Spring提供的Page和Pageable类
